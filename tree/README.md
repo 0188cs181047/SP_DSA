@@ -1,0 +1,1 @@
+# A Tree is a hierarchical data structure that consist of nodes connected by edges.
