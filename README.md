@@ -49,15 +49,24 @@ Two things are usually measured:
 
 ```
 SP_DSA/
-└── tree/               # Binary tree concepts and implementations
-    ├── traversal.py            # Preorder, Inorder, Postorder, Level Order
-    ├── full_binary_tree.py     # Every node has 0 or 2 children
-    ├── complete_binary_tree.py # Filled left-to-right, last level may be partial
-    ├── perfect_binary_tree.py  # All internal nodes have 2 children, all leaves same depth
-    └── balance_binary_tree.py  # Left/right subtree height differs by at most 1
+├── array/               # Static/dynamic arrays, complexity, common problems
+├── linked_list/          # Singly/doubly/circular linked lists
+├── stack/               # LIFO structure, array & linked-list based
+├── queue/               # FIFO structure, circular queue, deque, priority queue
+├── tree/                 # Binary tree concepts and implementations
+│   ├── traversal.py            # Preorder, Inorder, Postorder, Level Order
+│   ├── full_binary_tree.py     # Every node has 0 or 2 children
+│   ├── complete_binary_tree.py # Filled left-to-right, last level may be partial
+│   ├── perfect_binary_tree.py  # All internal nodes have 2 children, all leaves same depth
+│   └── balance_binary_tree.py  # Left/right subtree height differs by at most 1
+├── graph/                # Adjacency list/matrix, BFS/DFS, shortest paths
+├── hash_table/           # Hashing, collisions, key-value lookups
+├── searching/            # Linear search, binary search
+├── sorting/              # Bubble/insertion/merge/quick/heap sort
+└── dynamic_programming/  # Memoization, tabulation, classic DP problems
 ```
 
-Each file is self-contained and runnable — see `tree/README.md` for details on that section.
+Every folder has its own `README.md` with definitions, diagrams, time/space complexity, and common interview problems for that topic.
 
 ## Summary
 
