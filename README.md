@@ -49,24 +49,25 @@ Two things are usually measured:
 
 ```
 SP_DSA/
-├── array/               # Static/dynamic arrays, complexity, common problems
-├── linked_list/          # Singly/doubly/circular linked lists
-├── stack/               # LIFO structure, array & linked-list based
-├── queue/               # FIFO structure, circular queue, deque, priority queue
-├── tree/                 # Binary tree concepts and implementations
-│   ├── traversal.py            # Preorder, Inorder, Postorder, Level Order
-│   ├── full_binary_tree.py     # Every node has 0 or 2 children
-│   ├── complete_binary_tree.py # Filled left-to-right, last level may be partial
-│   ├── perfect_binary_tree.py  # All internal nodes have 2 children, all leaves same depth
-│   └── balance_binary_tree.py  # Left/right subtree height differs by at most 1
-├── graph/                # Adjacency list/matrix, BFS/DFS, shortest paths
-├── hash_table/           # Hashing, collisions, key-value lookups
-├── searching/            # Linear search, binary search
-├── sorting/              # Bubble/insertion/merge/quick/heap sort
-└── dynamic_programming/  # Memoization, tabulation, classic DP problems
+├── array/                # Two pointers, sliding window, prefix sum, Kadane's, and more
+├── linked_list/          # Singly linked list basics, reversal, cycles, merging, LRU Cache
+├── stack/                # LIFO basics, monotonic stack, expression evaluation
+├── queue/                # FIFO basics, deque patterns, BFS applications
+├── tree/                 # Binary tree structure checks, height/BST/views, serialization
+│   └── (traversal.py — Preorder/Inorder/Postorder/Level Order — lives in ../searching/)
+├── graph/                # Adjacency list/matrix, BFS/DFS, shortest paths, MST, SCC
+├── hash_table/           # Hashing, collisions, frequency counting, membership
+├── searching/            # Linear/binary search and its variants, binary search on the answer
+├── sorting/              # Bubble/insertion/merge/quick/heap/counting sort, related problems
+├── dynamic_programming/  # Memoization, tabulation, knapsack family, grid DP
+└── logical/              # Aptitude-style logic/number puzzles (FizzBuzz, GCD, bit tricks, etc.)
 ```
 
-Every folder has its own `README.md` with definitions, diagrams, time/space complexity, and common interview problems for that topic.
+Every folder has its own `README.md` with definitions, diagrams, and time/space
+complexity for the topic, plus an **Interview Roadmap (Basic → Advanced)** table —
+every problem, its pattern, difficulty, and which companies (FAANG/big tech and
+MNCs like TCS/Infosys/Wipro) commonly ask it — linking to a runnable `.py` file
+for each one.
 
 ## Summary
 
