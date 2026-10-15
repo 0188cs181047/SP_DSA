@@ -49,20 +49,6 @@ class Node:
         self.left = None
         self.right = None
 
-
-def lowest_common_ancestor_binary_tree(root, p, q):
-    if root is None or root is p or root is q:
-        return root
-
-    left = lowest_common_ancestor_binary_tree(root.left, p, q)
-    right = lowest_common_ancestor_binary_tree(root.right, p, q)
-
-    if left is not None and right is not None:
-        return root
-
-    return left if left is not None else right
-
-
 def lowest_common_ancestor_bst(root, p, q):
     node = root
 
@@ -74,7 +60,7 @@ def lowest_common_ancestor_bst(root, p, q):
         else:
             return node
 
-    return None
+    return None 
 
 
 if __name__ == "__main__":
@@ -88,5 +74,4 @@ if __name__ == "__main__":
 
     p, q = root.left.left, root.left.right  # nodes 0 and 4
 
-    print("LCA (general tree):", lowest_common_ancestor_binary_tree(root, p, q).data)  # 2
     print("LCA (BST):", lowest_common_ancestor_bst(root, p, q).data)  # 2

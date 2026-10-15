@@ -33,59 +33,79 @@ Space Complexity: O(1)
 """
 
 
-class ListNode:
-    def __init__(self, val):
-        self.val = val
+
+class Node:
+    def __init__(self, data):
+        self.data = data
         self.next = None
 
 
-def build_linked_list(values):
-    head = None
-    tail = None
-    for value in values:
-        node = ListNode(value)
-        if head is None:
-            head = node
-            tail = node
-        else:
-            tail.next = node
-            tail = node
-    return head
+class LL:
+    def __init__(self):
+        self.head = None
+
+    def insert(self, data):
+        node = Node(data)
+
+        if self.head is None:
+            self.head = node
+            return node
+
+        current = self.head
+
+        while current.next:
+            current = current.next
+
+        current.next = node
+        return node
+
+    def print_ll(self):
+        current = self.head
+
+        while current:
+            print(current.data, end=" -> ")
+            current = current.next
+
+        print("None")
+
+    def remove_nth_from_end(self, n):
+        dummy = Node(0)
+        dummy.next = self.head
+
+        slow = dummy
+        fast = dummy
+
+        # Move fast pointer n steps forward
+        for _ in range(n):
+            if fast.next is None:
+                raise ValueError("n is greater than the list length")
+            fast = fast.next
+
+        # Move both pointers until fast reaches the last node
+        while fast.next is not None:
+            slow = slow.next
+            fast = fast.next
+
+        # Remove the nth node from the end
+        slow.next = slow.next.next
+
+        # Update the linked list head
+        self.head = dummy.next
+
+    # Optional: return the head if you want to use the result
+        return self.head
 
 
-def print_linked_list(head):
-    current = head
-    values = []
-    while current:
-        values.append(str(current.val))
-        current = current.next
-    print(" -> ".join(values) + " -> None")
+# Create linked list
+ll = LL()
 
+for value in [1, 2, 3, 4, 5]:
+    ll.insert(value)
 
-def remove_nth_from_end(head, n):
-    dummy = ListNode(0)
-    dummy.next = head
+print("Original linked list:")
+ll.print_ll()
 
-    slow = dummy
-    fast = dummy
+ll.remove_nth_from_end(2)
 
-    for _ in range(n):
-        fast = fast.next
-
-    while fast.next is not None:
-        slow = slow.next
-        fast = fast.next
-
-    slow.next = slow.next.next
-
-    return dummy.next
-
-
-if __name__ == "__main__":
-    head = build_linked_list([1, 2, 3, 4, 5])
-    print("Original:")
-    print_linked_list(head)
-
-    result = remove_nth_from_end(head, 2)
-    print("After removing 2nd from end:")
-    print_linked_list(result)  # 1 -> 2 -> 3 -> 5 -> None
+print("After removing 2nd node from the end:")
+ll.print_ll()

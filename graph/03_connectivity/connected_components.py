@@ -82,4 +82,4 @@ if __name__ == "__main__":
     edges = [(0, 1), (1, 2), (3, 4)]
 
     print("Components (DFS):", count_components_dfs(n, edges))
-    print("Components (Union-Find):", count_components_union_find(n, edges))
+    # print("Components (Union-Find):", count_components_union_find(n, edges))

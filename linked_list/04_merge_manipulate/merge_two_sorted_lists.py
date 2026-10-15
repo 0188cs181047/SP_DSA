@@ -25,62 +25,83 @@ Space Complexity: O(1) extra space (nodes are relinked, not copied)
 """
 
 
-class ListNode:
-    def __init__(self, val):
-        self.val = val
+class Node:
+    def __init__(self, data):
+        self.data = data
         self.next = None
 
+class LL:
+    def __init__(self):
+        self.head = None
 
-def build_linked_list(values):
-    head = None
-    tail = None
-    for value in values:
-        node = ListNode(value)
-        if head is None:
-            head = node
-            tail = node
-        else:
-            tail.next = node
-            tail = node
-    return head
+    def insert(self, data):
+        node = Node(data)
+
+        if self.head is None:
+            self.head = node
+            return node
+
+        current = self.head
+
+        while current.next:
+            current = current.next
+
+        current.next = node
+        return node
+
+    def print_ll(self):
+        current = self.head
+
+        while current:
+            print(current.data, end=" -> ")
+            current = current.next
+
+        print("None")
+
+    def merge_two_lists(self, list2):
+        list1 = self.head
+        dummy = Node(0)
+        tail = dummy
+
+        while list1 is not None and list2 is not None:
+            if list1.data <= list2.data:
+                tail.next = list1
+                list1 = list1.next
+            else:
+                tail.next = list2
+                list2 = list2.next
+
+            tail = tail.next
+
+        # Attach the remaining nodes
+        tail.next = list1 if list1 is not None else list2
+
+        # Update the head of the merged list
+        self.head = dummy.next
+
+        return self.head
 
 
-def print_linked_list(head):
-    current = head
-    values = []
-    while current:
-        values.append(str(current.val))
-        current = current.next
-    print(" -> ".join(values) + " -> None")
+# Create the first sorted linked list
+ll1 = LL()
+ll1.insert(1)
+ll1.insert(2)
+ll1.insert(4)
 
+# Create the second sorted linked list
+ll2 = LL()
+ll2.insert(1)
+ll2.insert(3)
+ll2.insert(4)
 
-def merge_two_lists(list1, list2):
-    dummy = ListNode(0)
-    tail = dummy
+print("List 1:")
+ll1.print_ll()
 
-    while list1 is not None and list2 is not None:
-        if list1.val <= list2.val:
-            tail.next = list1
-            list1 = list1.next
-        else:
-            tail.next = list2
-            list2 = list2.next
-        tail = tail.next
+print("List 2:")
+ll2.print_ll()
 
-    tail.next = list1 if list1 is not None else list2
+# Merge the lists
+ll1.merge_two_lists(ll2.head)
 
-    return dummy.next
-
-
-if __name__ == "__main__":
-    list1 = build_linked_list([1, 2, 4])
-    list2 = build_linked_list([1, 3, 4])
-
-    print("List 1:")
-    print_linked_list(list1)
-    print("List 2:")
-    print_linked_list(list2)
-
-    merged = merge_two_lists(list1, list2)
-    print("Merged:")
-    print_linked_list(merged)  # 1 -> 1 -> 2 -> 3 -> 4 -> 4 -> None
+print("Merged List:")
+ll1.print_ll()

@@ -29,64 +29,103 @@ Space Complexity: O(max(n, m)) for the newly built result list
 """
 
 
-class ListNode:
-    def __init__(self, val):
-        self.val = val
+class Node:
+    def __init__(self, data):
+        self.data = data
         self.next = None
 
 
-def build_linked_list(values):
-    head = None
-    tail = None
-    for value in values:
-        node = ListNode(value)
-        if head is None:
-            head = node
-            tail = node
-        else:
-            tail.next = node
-            tail = node
-    return head
+class LL:
+    def __init__(self):
+        self.head = None
+
+    def insert(self, data):
+        node = Node(data)
+
+        if self.head is None:
+            self.head = node
+            return
+
+        current = self.head
+
+        while current.next:
+            current = current.next
+
+        current.next = node
+
+    def print_ll(self, head=None):
+        current = head if head else self.head
+
+        if current is None:
+            return
+
+        while current:
+            print(current.data, end="->")
+            current = current.next
+
+        print(None)
+
+    def add_two_number(self, other):
+        current_1 = self.head
+        current_2 = other.head
+
+        carry = 0
+
+        result = LL()
+        result_tail = None
+
+        while current_1 or current_2 or carry:
+
+            v1 = current_1.data if current_1 else 0
+            v2 = current_2.data if current_2 else 0
+
+            total = v1 + v2 + carry
+
+            carry = total // 10
+            value = total % 10
+
+            new_node = Node(value)
+
+            # First node
+            if result.head is None:
+                result.head = new_node
+                result_tail = new_node
+
+            # Remaining nodes
+            else:
+                result_tail.next = new_node
+                result_tail = new_node
+
+            current_1 = current_1.next if current_1 else None
+            current_2 = current_2.next if current_2 else None
+
+        return result
 
 
-def print_linked_list(head):
-    current = head
-    values = []
-    while current:
-        values.append(str(current.val))
-        current = current.next
-    print(" -> ".join(values) + " -> None")
+# First linked list
+ll = LL()
+ll.insert(1)
+ll.insert(11)
+ll.insert(111)
+ll.insert(1111)
+
+print("LL1:")
+ll.print_ll()
 
 
-def add_two_numbers(l1, l2):
-    dummy = ListNode(0)
-    tail = dummy
-    carry = 0
+# Second linked list
+ll_2 = LL()
+ll_2.insert(2)
+ll_2.insert(22)
+ll_2.insert(222)
+ll_2.insert(2222)
 
-    while l1 is not None or l2 is not None or carry != 0:
-        digit1 = l1.val if l1 is not None else 0
-        digit2 = l2.val if l2 is not None else 0
-
-        total = digit1 + digit2 + carry
-        carry = total // 10
-        tail.next = ListNode(total % 10)
-        tail = tail.next
-
-        l1 = l1.next if l1 is not None else None
-        l2 = l2.next if l2 is not None else None
-
-    return dummy.next
+print("LL2:")
+ll_2.print_ll()
 
 
-if __name__ == "__main__":
-    l1 = build_linked_list([2, 4, 3])  # represents 342
-    l2 = build_linked_list([5, 6, 4])  # represents 465
+# Add two linked lists
+res = ll.add_two_number(ll_2)
 
-    print("L1:")
-    print_linked_list(l1)
-    print("L2:")
-    print_linked_list(l2)
-
-    result = add_two_numbers(l1, l2)
-    print("Sum:")
-    print_linked_list(result)  # 7 -> 0 -> 8 -> None (represents 807)
+print("Result:")
+res.print_ll()

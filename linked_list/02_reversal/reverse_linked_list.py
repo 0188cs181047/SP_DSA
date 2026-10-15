@@ -39,67 +39,81 @@ Space Complexity: O(1) iterative, O(n) recursive (call stack)
 
 class Node:
     def __init__(self, data):
-        self.data = data
-        self.next = None
+      self.data = data
+      self.next = None
 
 
-def build_linked_list(values):
-    head = None
-    tail = None
-    for value in values:
-        node = Node(value)
-        if head is None:
-            head = node
-            tail = node
-        else:
-            tail.next = node
-            tail = node
-    return head
+class LL:
+    def __init__(self):
+      self.head = None
 
+    def insert(self, data):
+      node = Node(data)
 
-def print_linked_list(head):
-    current = head
-    values = []
-    while current:
-        values.append(str(current.data))
+      if self.head is None:
+        self.head = node
+        return
+
+      current = self.head
+      while current.next:
         current = current.next
-    print(" -> ".join(values) + " -> None")
 
+      current.next = node
 
-def reverse_iterative(head):
-    prev = None
-    curr = head
+    def print_ll(self, head=None):
+      if head:
+        current = head
+      elif self.head:
+        current = self.head
+      else:
+        return None
+      
+      while current:
+        print(current.data, end ="->")
+        current = current.next
+      print(None)
 
-    while curr:
+    def reverse_iterative(self):
+      prev = None
+      curr = self.head
+
+      while curr:
         next_node = curr.next
         curr.next = prev
         prev = curr
         curr = next_node
 
-    return prev
+      return prev
 
 
-def reverse_recursive(head):
-    if head is None or head.next is None:
-        return head
+    def reverse_recursive(self):
+      re_re = self._reverse(self.head)
+      return re_re
 
-    new_head = reverse_recursive(head.next)
-    head.next.next = head
-    head.next = None
+    def _reverse(self, head):
+        if head is None or head.next is None:
+            return head
+        
+        new_head = self._reverse(head.next)
 
-    return new_head
+        head.next.next = head
+        head.next = None
+
+        return new_head
 
 
-if __name__ == "__main__":
-    head = build_linked_list([1, 2, 3, 4, 5])
-    print("Original:")
-    print_linked_list(head)
+ll = LL()
+ll.insert(1)
+ll.insert(111)
+ll.insert(1111)
+ll.insert(11111)
+ll.insert(111111)
 
-    reversed_head = reverse_iterative(head)
-    print("Reversed (iterative):")
-    print_linked_list(reversed_head)
+ll.print_ll()
 
-    head_again = build_linked_list([1, 2, 3, 4, 5])
-    reversed_head_recursive = reverse_recursive(head_again)
-    print("Reversed (recursive):")
-    print_linked_list(reversed_head_recursive)
+reverse = ll.reverse_iterative()
+
+ll.print_ll(head=reverse)
+
+# re_reverse = ll.reverse_recursive()
+# ll.print_ll(head=re_reverse)

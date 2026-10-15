@@ -30,40 +30,78 @@ Space Complexity: O(1)
 """
 
 
-class ListNode:
-    def __init__(self, val):
-        self.val = val
+class Node:
+    def __init__(self, data):
+        self.data = data
         self.next = None
 
 
-def has_cycle(head):
-    slow = head
-    fast = head
+class LL:
+    def __init__(self):
+        self.head = None
 
-    while fast is not None and fast.next is not None:
-        slow = slow.next
-        fast = fast.next.next
-        if slow is fast:
-            return True
+    def insert(self, data):
+        node = Node(data)
 
-    return False
+        if self.head is None:
+            self.head = node
+            return node
+
+        current = self.head
+
+        while current.next:
+            current = current.next
+
+        current.next = node
+        return node
+
+    def create_cycle(self, targe_node):
+        if self.head is None:
+            return None
+
+        current = self.head
+        while current.next:
+            current = current.next
+
+        current.next = targe_node
+
+    def detect_cycle(self):
+      slow = self.head
+      fast = self.head
+
+      while fast is not None and fast.next is not None:
+          slow = slow.next
+          fast = fast.next.next
+
+          if slow is fast:
+              return True
+
+      return False
+
+ll = LL()
+n1 = ll.insert(3)
+n2 = ll.insert(2)
+n3 = ll.insert(0)
+n4 = ll.insert(-4)
+
+ll.create_cycle(n2)
+
+cycle_start = ll.detect_cycle()
+
+if cycle_start:
+    print("Yes cycle detected")
+else:
+    print("No cycle detected")
 
 
-if __name__ == "__main__":
-    # Build 3 -> 2 -> 0 -> -4 -> back to node(2), forming a cycle.
-    n1 = ListNode(3)
-    n2 = ListNode(2)
-    n3 = ListNode(0)
-    n4 = ListNode(-4)
-    n1.next = n2
-    n2.next = n3
-    n3.next = n4
-    n4.next = n2  # creates the cycle
+# Test a linked list without a cycle
+ll2 = LL()
+ll2.insert(1)
+ll2.insert(2)
 
-    print(has_cycle(n1))  # True
+cycle_start = ll2.detect_cycle()
 
-    # A plain list with no cycle.
-    a = ListNode(1)
-    b = ListNode(2)
-    a.next = b
-    print(has_cycle(a))  # False
+if cycle_start:
+    print("Yes cycle detented")
+else:
+    print("No cycle detected")

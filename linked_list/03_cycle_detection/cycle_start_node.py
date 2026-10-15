@@ -32,54 +32,95 @@ Space Complexity: O(1)
 """
 
 
-class ListNode:
-    def __init__(self, val):
-        self.val = val
+class Node:
+    def __init__(self, data):
+        self.data = data
         self.next = None
 
 
-def detect_cycle_start(head):
-    slow = head
-    fast = head
-    found_cycle = False
+class LL:
+    def __init__(self):
+        self.head = None
 
-    # Phase 1: race slow and fast until they meet, or fast hits the end.
-    while fast is not None and fast.next is not None:
-        slow = slow.next
-        fast = fast.next.next
-        if slow is fast:
-            found_cycle = True
-            break
+    def insert(self, data):
+        node = Node(data)
 
-    if not found_cycle:
-        return None
+        if self.head is None:
+            self.head = node
+            return node
 
-    # Phase 2: one pointer from head, one from the meeting point, both step by step.
-    pointer1 = head
-    pointer2 = slow
-    while pointer1 is not pointer2:
-        pointer1 = pointer1.next
-        pointer2 = pointer2.next
+        current = self.head
 
-    return pointer1
+        while current.next:
+            current = current.next
+
+        current.next = node
+        return node
+
+    def create_cycle(self, target_node):
+        if self.head is None:
+            return
+
+        current = self.head
+
+        while current.next:
+            current = current.next
+
+        current.next = target_node
+
+    def detect_cycle_start(self):
+        slow = self.head
+        fast = self.head
+
+        # Phase 1: Detect whether a cycle exists
+        while fast is not None and fast.next is not None:
+            slow = slow.next
+            fast = fast.next.next
+
+            if slow is fast:
+                break
+        else:
+            # No cycle found
+            return None
+
+        # Phase 2: Find the starting node of the cycle
+        pointer1 = self.head
+        pointer2 = slow
+
+        while pointer1 is not pointer2:
+            pointer1 = pointer1.next
+            pointer2 = pointer2.next
+
+        return pointer1
 
 
-if __name__ == "__main__":
-    # Build 3 -> 2 -> 0 -> -4 -> back to node(2), forming a cycle.
-    n1 = ListNode(3)
-    n2 = ListNode(2)
-    n3 = ListNode(0)
-    n4 = ListNode(-4)
-    n1.next = n2
-    n2.next = n3
-    n3.next = n4
-    n4.next = n2  # creates the cycle, starting at n2
+# Example usage
+ll = LL()
 
-    start = detect_cycle_start(n1)
-    print(start.val)  # 2
+n1 = ll.insert(3)
+n2 = ll.insert(2)
+n3 = ll.insert(0)
+n4 = ll.insert(-4)
 
-    # A plain list with no cycle.
-    a = ListNode(1)
-    b = ListNode(2)
-    a.next = b
-    print(detect_cycle_start(a))  # None
+# Create a cycle: -4 -> 2
+ll.create_cycle(n2)
+
+cycle_start = ll.detect_cycle_start()
+
+if cycle_start:
+    print("Cycle starts at:", cycle_start.data)
+else:
+    print("No cycle detected")
+
+
+# Test a linked list without a cycle
+ll2 = LL()
+ll2.insert(1)
+ll2.insert(2)
+
+cycle_start = ll2.detect_cycle_start()
+
+if cycle_start:
+    print("Cycle starts at:", cycle_start.data)
+else:
+    print("No cycle detected")

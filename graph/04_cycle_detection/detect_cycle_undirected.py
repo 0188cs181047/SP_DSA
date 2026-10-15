@@ -90,5 +90,5 @@ if __name__ == "__main__":
     acyclic_edges = [(0, 1), (0, 2), (2, 3)]
 
     print("Has cycle (cyclic graph):", has_cycle_dfs(n, cyclic_edges))
-    print("Has cycle (acyclic graph):", has_cycle_dfs(n, acyclic_edges))
-    print("Has cycle via Union-Find:", has_cycle_union_find(n, cyclic_edges))
+    # print("Has cycle (acyclic graph):", has_cycle_dfs(n, acyclic_edges))
+    # print("Has cycle via Union-Find:", has_cycle_union_find(n, cyclic_edges))

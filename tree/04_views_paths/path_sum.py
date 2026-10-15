@@ -61,28 +61,6 @@ def has_path_sum(root, target_sum):
     return has_path_sum(root.left, remaining) or has_path_sum(root.right, remaining)
 
 
-def all_root_to_leaf_paths_with_sum(root, target_sum):
-    result = []
-
-    def dfs(node, remaining, path):
-        if node is None:
-            return
-
-        path.append(node.data)
-        remaining -= node.data
-
-        if node.left is None and node.right is None and remaining == 0:
-            result.append(list(path))
-        else:
-            dfs(node.left, remaining, path)
-            dfs(node.right, remaining, path)
-
-        path.pop()
-
-    dfs(root, target_sum, [])
-    return result
-
-
 if __name__ == "__main__":
     root = Node(5)
     root.left = Node(4)
@@ -97,5 +75,4 @@ if __name__ == "__main__":
 
     target = 22
     print("Has path sum:", has_path_sum(root, target))  # True
-    print("All matching paths:", all_root_to_leaf_paths_with_sum(root, target))
     # [[5, 4, 11, 2], [5, 8, 4, 5]]

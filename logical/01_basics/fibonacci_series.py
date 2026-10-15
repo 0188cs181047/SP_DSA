@@ -34,8 +34,19 @@ def fibonacci_series(n):
     return series
 
 
+def fabonacci_serices(n):
+  if n <= 1:
+    return n
+
+  return fabonacci_serices(n-1) + fabonacci_serices(n-2)
+
+  
 if __name__ == "__main__":
     n = 8
     output = fibonacci_series(n)
     print("n =", n)
     print("Output:", output)
+
+
+    for i in range(n):
+      print(fabonacci_serices(i), end=" ")
