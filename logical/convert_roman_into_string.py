@@ -81,7 +81,7 @@ def roman_to_number(roman):
 
 
 if __name__ == "__main__":
-    roman = "IV"
+    roman = "MCMXCIV"
 
     res = roman_to_number(roman)
 
