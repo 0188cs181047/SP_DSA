@@ -69,10 +69,45 @@ Fine-tuning can be added later if there is a specific need, such as adapting the
 """
 
 **E5. What is a "chunk," and why split documents into chunks instead of embedding each whole document?**
-A chunk is a small, self-contained piece of a document — a paragraph, a few sentences, or a fixed-size window of text — that gets its own embedding and its own entry in the vector database. Whole-document embedding would average away the signal: a single vector for a 50-page PDF can't distinguish "the pricing section" from "the legal disclaimer," so a query about pricing would retrieve the whole document, most of it irrelevant.
+A **chunk** is a small part of a document, such as a paragraph or a few sentences. Each chunk is converted into an embedding and stored in a vector database.
 
-**E6. In plain terms, what is an embedding, and what does it let you do that keyword matching can't?**
-An embedding is a list of numbers (a vector) produced by a model, positioned so that texts with similar meaning end up close together in that numeric space, even if they don't share any exact words. That's what lets a search for "cheap flights" retrieve a document that says "budget airfare" — pure keyword matching would miss it, but the embeddings of the two phrases land near each other.
+
+### E5. What is a Chunk, and Why Do We Split Documents into Chunks?
+
+A **chunk** is a small part of a document, such as a paragraph or a few sentences. Each chunk is converted into an embedding and stored in a vector database.
+
+**Why do we split documents into chunks?**
+
+- **Better search:** Helps retrieve information relevant to the user's question.
+- **Higher accuracy:** Reduces irrelevant information in the retrieved results.
+- **Efficient retrieval:** Retrieves only the required part instead of the entire document.
+
+**Example:**
+
+Suppose a PDF contains 50 pages covering pricing, company policies, and legal information. If a user asks about pricing, chunking helps the RAG system retrieve only the relevant pricing section instead of the entire PDF.
+
+**In short:** Chunking improves the relevance and efficiency of information retrieval in RAG systems.
+
+
+
+### E6. What Is an Embedding, and How Is It Better Than Keyword Matching?
+
+An **embedding** is a list of numbers (a vector) that represents the meaning of text. Texts with similar meanings have embeddings that are close to each other in the vector space.
+
+**Why do we use embeddings?**
+
+- **Semantic search:** Finds information based on meaning, not just exact words.
+- **Better results:** Can find relevant information even when different words are used.
+- **Improved retrieval:** Helps RAG systems retrieve relevant document chunks for a user's question.
+
+**Example:**
+
+If a user searches for "cheap flights," an embedding-based search can find a document containing "budget airfare" because both phrases have similar meanings.
+
+Keyword matching might miss this result because the exact words are different.
+
+**In short:** Embeddings help search systems understand the meaning of text rather than matching only exact keywords.
+
 
 **E7. What is a vector database, and why not just store embeddings in a regular SQL table?**
 A vector database stores embeddings alongside metadata and is built specifically to answer "which stored vectors are closest to this query vector" quickly, using approximate nearest-neighbor (ANN) indexes. A regular SQL database has no efficient way to do that similarity search at scale — you'd be stuck computing distance to every single row, which doesn't scale past a small table.
@@ -85,29 +120,167 @@ The embedding model plus the vector database handle retrieval — finding releva
 
 ### Medium — Technical Round
 
-**M1. How does RAG reduce (not eliminate) hallucination?**
-By supplying real source text as context, the model can quote or paraphrase actual facts instead of generating purely from memorized parameters. It doesn't eliminate hallucination — the model can still ignore, misread, or overconfidently extrapolate beyond the retrieved context.
 
-**M2. Naive RAG vs. advanced RAG?**
-Naive RAG is a single embed → retrieve → generate pass. Advanced RAG adds query rewriting/expansion, hybrid search, re-ranking, multi-hop retrieval, and self-checking loops on top, to fix the specific failure modes naive RAG runs into.
+### M1. How Does RAG Reduce Hallucination?
 
-**M3. What is hybrid search?**
-Running both sparse keyword search (BM25) and dense vector similarity search, then merging or re-ranking the two result sets. It matters because vector search can miss exact terms — product codes, names, acronyms — that keyword search catches trivially.
+**RAG (Retrieval-Augmented Generation)** reduces hallucination by providing the LLM with relevant information retrieved from trusted documents before generating an answer.
+
+**How does it work?**
+
+1. **Retrieve:** Finds relevant information from a document or vector database.
+2. **Augment:** Adds the retrieved information to the LLM's prompt as context.
+3. **Generate:** The LLM uses the provided context to generate an answer based on the available information.
+
+**Example:**
+
+Suppose a company document states that its leave policy allows 20 days of annual leave. If a user asks about the leave policy, RAG retrieves the relevant section and provides it to the LLM to generate an answer.
+
+Without RAG, the LLM might generate an incorrect answer based on its existing knowledge.
+
+**Important:** RAG reduces hallucination but does not eliminate it completely. The LLM may misinterpret the retrieved information, ignore the context, or generate unsupported answers.
+
+**In short:** RAG improves answer accuracy by grounding the LLM's responses in relevant source information.
+
+
+
+### M2. What Is the Difference Between Naive RAG and Advanced RAG?
+
+**Naive RAG** follows a simple process: retrieve relevant document chunks and provide them to the LLM to generate an answer.
+
+**Advanced RAG** improves this process by adding techniques to retrieve more relevant information and generate more accurate answers.
+
+**Key Differences:**
+
+| Naive RAG | Advanced RAG |
+|---|---|
+| Uses a simple retrieval process. | Uses improved retrieval techniques. |
+| Searches using the original user query. | Can rewrite or expand the query. |
+| Typically uses vector search. | Can combine keyword search and vector search (hybrid search). |
+| May retrieve irrelevant chunks. | Can use re-ranking to select the most relevant chunks. |
+| Uses a straightforward retrieval and generation flow. | Can use multi-step retrieval and self-checking mechanisms. |
+
+**Example:**
+
+Suppose a user asks, "What is the company's leave policy?"
+
+- **Naive RAG:** Retrieves document chunks based on the original query and generates an answer.
+- **Advanced RAG:** Can rewrite the query, combine keyword and semantic search, re-rank the retrieved chunks, and use the most relevant information to generate an answer.
+
+**In short:** Naive RAG uses a basic retrieval pipeline, whereas Advanced RAG adds techniques to improve retrieval quality and answer accuracy.
+
+
+
+### M3. What Is Hybrid Search?
+
+**Hybrid search** combines keyword search and vector search to find the most relevant information from documents.
+
+It uses two search methods:
+
+1. **Keyword Search (BM25):** Finds documents containing exact words or terms.
+2. **Vector Search:** Finds documents based on the meaning and similarity of the text using embeddings.
+
+The results from both methods are combined or re-ranked to improve search accuracy.
+
+**Why do we use hybrid search?**
+
+- Finds exact keywords, product codes, names, and acronyms.
+- Retrieves information based on meaning, even when the wording is different.
+- Improves the relevance of search results.
+
+**Example:**
+
+Suppose a user searches for `Python FastAPI`.
+
+- **Keyword Search:** Finds documents containing the exact terms `Python` and `FastAPI`.
+- **Vector Search:** May also find documents discussing Python API development using similar wording.
+- **Hybrid Search:** Combines both results to find relevant information more effectively.
+
+**In short:** Hybrid search combines keyword matching and semantic search to improve information retrieval in RAG systems.
 
 **M4. How do you evaluate a RAG system?**
 Two layers: retrieval metrics (precision/recall@K, MRR — did we fetch the right chunks?) and generation metrics (faithfulness/groundedness — does the answer stick to retrieved content? — and answer relevance), often scored with an LLM-as-judge, plus end-to-end task accuracy on real questions.
 
-**M5. What is "Lost in the Middle," and why should it change how you build prompts?**
-Research showing LLMs attend less to information placed in the middle of a long context than at the very start or end. Practically: don't just stuff every retrieved chunk into the prompt in arbitrary order — put the most relevant chunk near the beginning or end, and consider re-ranking before insertion.
+
+### M5. What Is "Lost in the Middle," and Why Does It Matter in Prompt Design?
+
+**Lost in the Middle** is a phenomenon where an LLM may pay more attention to information at the beginning and end of a long context than to information in the middle.
+
+In RAG systems, this can cause the LLM to overlook important information when too many document chunks are added to the prompt.
+
+**Why does it matter?**
+
+- **Better context ordering:** Place the most relevant information near the beginning or end of the prompt.
+- **Reduce irrelevant content:** Avoid adding too many unnecessary document chunks.
+- **Re-ranking:** Rank retrieved chunks by relevance before adding them to the prompt.
+- **Improve answer quality:** Help the LLM focus on the most useful information.
+
+**Example:**
+
+Suppose a RAG system retrieves 20 document chunks, and the most important answer is hidden in the middle. The LLM might overlook that information and generate an incomplete answer.
+
+By re-ranking the chunks and placing the most relevant information strategically, we can improve the chances that the LLM uses the correct context.
+
+**In short:** Lost in the Middle reminds us that the order and amount of context in a prompt can affect the quality of an LLM's answer.
+
 
 **M6. What is agentic / multi-hop RAG?**
 Instead of one fixed retrieve-then-generate pass, the model can recognize it needs more information, issue another retrieval query, and iterate — necessary for questions that require combining facts scattered across multiple, non-adjacent sources.
 
-**M7. What is GraphRAG?**
-Building a knowledge graph of entities and relationships from the corpus, and retrieving connected subgraphs alongside (or instead of) flat text chunks — it helps with questions that require traversing relationships across many documents, which plain chunk retrieval struggles with.
 
-**M8. What is query rewriting/expansion, and why do it before retrieval?**
-It's rephrasing the user's raw query into one or more retrieval-friendly queries before embedding and searching — resolving pronouns and dropped context from earlier turns in a conversation ("what about its cost?" becomes "what is the cost of the Eiffel Tower's construction?"), or generating several phrasings of the same question to widen the net. It helps because users type conversationally and ambiguously, but retrieval quality depends heavily on the query actually containing terms that match relevant chunks.
+### M7. What Is GraphRAG?
+
+**GraphRAG (Graph-based Retrieval-Augmented Generation)** is an approach that combines RAG with a knowledge graph to retrieve information based on entities and their relationships.
+
+A **knowledge graph** represents information as:
+- **Entities:** People, companies, products, or other objects.
+- **Relationships:** Connections between entities.
+
+**How does GraphRAG work?**
+
+1. **Extract:** Identifies entities and relationships from documents.
+2. **Build:** Creates a knowledge graph connecting related information.
+3. **Retrieve:** Finds relevant entities, relationships, or connected information based on the user's question.
+4. **Generate:** Provides the retrieved information to the LLM to generate an answer.
+
+**Why do we use GraphRAG?**
+
+- Helps answer complex questions involving multiple documents.
+- Identifies relationships between different entities.
+- Connects related information that simple chunk-based retrieval might miss.
+
+**Example:**
+
+Suppose a user asks, "Which projects use Kafka, and which companies are responsible for them?"
+
+GraphRAG can connect projects, technologies, and companies through their relationships to help answer the question.
+
+**In short:** Traditional RAG mainly retrieves relevant text chunks, while GraphRAG uses relationships in a knowledge graph to help answer complex, connected questions.
+
+
+### M8. What Is Query Rewriting/Expansion, and Why Do It Before Retrieval?
+
+**Query rewriting** means changing the user's original question into a clearer query that helps the retrieval system find relevant information.
+
+**Query expansion** means generating additional related queries or alternative phrasings to find more relevant information.
+
+**Why do we use it?**
+
+- **Clearer queries:** Resolves ambiguous questions and missing context.
+- **Better retrieval:** Helps find relevant document chunks.
+- **Wider search:** Uses different phrasings to retrieve more useful results.
+- **Improved accuracy:** Provides more relevant context to the LLM.
+
+**Example:**
+
+Suppose a user asks, "What about its cost?" after discussing the Eiffel Tower.
+
+- **Original query:** "What about its cost?"
+- **Rewritten query:** "What was the cost of constructing the Eiffel Tower?"
+
+The rewritten query provides clear context, helping the retrieval system find relevant information.
+
+**In short:** Query rewriting and expansion improve RAG retrieval by making user queries clearer and helping the system find more relevant information.
+
 
 **M9. How do you decide chunk size and overlap for a given document type — say, legal contracts vs. chat logs?**
 There's no universal number — it's tuned empirically against retrieval eval metrics (precision/recall@K) for your actual corpus and query patterns. As a starting intuition: dense, self-contained documents (legal contracts, technical docs) tolerate larger chunks since each paragraph already stands alone; conversational data (chat logs, transcripts) usually needs smaller chunks with overlap, since a single turn out of context is often meaningless. Overlap exists specifically to avoid severing a sentence or idea exactly at a chunk boundary:
@@ -170,8 +343,33 @@ Precision tells you how noisy your top-K is (bloats the prompt with irrelevant c
 
 ### Advanced — Bar-Raiser / System-Design Round
 
-**A1. How would you design document-level access control into a RAG system?**
-Attach permission metadata (which users/groups can see this chunk) at ingestion time, and apply it as a mandatory filter in the vector search itself — not as a post-hoc filter on the LLM's answer, since by then the model may have already seen content the user shouldn't access. The filter has to be enforced at the retrieval layer, every time, with no code path that skips it.
+
+### A1. How Would You Design Document-Level Access Control in a RAG System?
+
+**Document-level access control** ensures that users can retrieve only the documents they are authorized to access.
+
+**How does it work?**
+
+1. **Attach permissions:** During document ingestion, store access metadata such as user IDs, group IDs, and roles with each document chunk.
+2. **Authenticate the user:** Verify the user's identity using an authentication system such as Keycloak or JWT.
+3. **Apply access filters:** Before retrieval, filter the vector database using the user's permissions.
+4. **Generate the answer:** Pass only authorized document chunks to the LLM.
+5. **Enforce security:** Apply permission checks on every request and prevent unauthorized access to retrieved content.
+
+**Example:**
+
+Suppose a company has two departments: HR and Engineering.
+
+- HR users can access salary and employee documents.
+- Engineering users can access technical documentation.
+- If an Engineering user asks about employee salaries, the RAG system must not retrieve HR documents.
+
+**Important Security Rule:**
+
+Access control must be enforced at the retrieval layer, not after the LLM generates an answer. Otherwise, unauthorized information could already have been exposed to the model.
+
+**In short:** Store permissions with document chunks and enforce authorization filters during every retrieval request to prevent unauthorized data access.
+
 
 **A2. How do you keep a RAG index fresh when the underlying data changes frequently?**
 Options include incremental re-indexing (only re-embed changed/new documents, tracked via a last-modified timestamp or content hash), a streaming ingestion pipeline for near-real-time updates, and a TTL or versioning scheme so stale chunks are demoted or removed rather than silently lingering forever alongside newer, conflicting information.
