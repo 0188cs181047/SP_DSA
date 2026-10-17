@@ -55,7 +55,18 @@ Retrieving too much information can exceed the model's context window and cause 
 
 
 **E4. Does RAG require fine-tuning the LLM?**
-No — that's a big part of RAG's appeal. It works with an off-the-shelf model purely through prompting: you retrieve relevant text and include it in the prompt, no weight updates needed. Fine-tuning can be layered on top later (for example, to teach the model a specific citation format or tone), but it's an optional enhancement, not a requirement.
+No. **RAG does not require fine-tuning the LLM.** One of the main advantages of RAG is that it can work with an existing, pre-trained language model without changing the model's weights.
+
+In a typical RAG workflow, the system retrieves relevant information from a knowledge source, such as documents or a vector database, and adds that information to the prompt along with the user's question. The LLM then uses the provided context to generate its answer.
+
+Fine-tuning can be added later if there is a specific need, such as adapting the model to a particular response style, output format, or specialized task. However, fine-tuning is an optional enhancement, not a requirement for RAG.
+
+**Key difference:**
+- **RAG** provides the model with relevant external information at query time.
+- **Fine-tuning** updates the model's weights using training examples to influence how it responds or performs a task.
+
+**Example:** A company can build a chatbot that answers questions using internal policy documents by retrieving relevant passages and passing them to an existing LLM. This can be done without fine-tuning the model.
+"""
 
 **E5. What is a "chunk," and why split documents into chunks instead of embedding each whole document?**
 A chunk is a small, self-contained piece of a document — a paragraph, a few sentences, or a fixed-size window of text — that gets its own embedding and its own entry in the vector database. Whole-document embedding would average away the signal: a single vector for a 50-page PDF can't distinguish "the pricing section" from "the legal disclaimer," so a query about pricing would retrieve the whole document, most of it irrelevant.
