@@ -35,7 +35,24 @@ LLMs only "know" what was in their training data plus whatever fits in the curre
 Offline: split documents into chunks, embed each chunk, store the vectors plus metadata in a vector database. At query time: embed the user's question, run an ANN search to pull the top-K most relevant chunks, build a prompt containing those chunks plus the original question, send it to the LLM, and return its answer.
 
 **E3. What's the difference between "context" in RAG and the model's "context window"?**
-"Context" is the specific text you choose to retrieve and hand to the model for this query — the retrieved chunks plus the question. The "context window" is the hard token limit the model itself imposes on every call — your retrieved context, the system prompt, conversation history, and the model's own output all have to fit inside that one shared budget. Retrieving generously and then silently overflowing the context window is a common, entirely avoidable production bug.
+In **RAG (Retrieval-Augmented Generation)**, **context** is the relevant information retrieved from the database and sent to the model along with the user's question.
+
+The **context window** is the maximum amount of information the model can process in a single request. It must accommodate the system prompt, retrieved information, conversation history, the user's question, and the model's generated response.
+
+### Example
+
+Suppose a model has a context window of **8,000 tokens**. The prompt, conversation history, and retrieved chunks must fit within the available token budget, while leaving room for the model's answer.
+
+### In simple words
+
+- **RAG context:** The information selected and provided to the model for the current question.
+- **Context window:** The model's overall token capacity for a request, including input and output.
+
+### Important point
+
+Retrieving too much information can exceed the model's context window and cause errors or force information to be left out. To avoid this, retrieve the most relevant chunks and check that the full request fits within the model's token limit.
+"""
+
 
 **E4. Does RAG require fine-tuning the LLM?**
 No — that's a big part of RAG's appeal. It works with an off-the-shelf model purely through prompting: you retrieve relevant text and include it in the prompt, no weight updates needed. Fine-tuning can be layered on top later (for example, to teach the model a specific citation format or tone), but it's an optional enhancement, not a requirement.
