@@ -26,7 +26,7 @@ ReAct (Reason + Act): the agent alternates Thought and Action, folding each Obse
 A chatbot maps one input to one output. An agent maintains a goal, decides on a sequence of actions — often tool calls — observes their results, and adapts its plan; it operates in a loop rather than a single pass.
 
 
-### What Is Tool Use / Function Calling?
+### E2 What Is Tool Use / Function Calling?
 
 **Tool use** allows an AI agent to interact with external tools, APIs, databases, or functions to perform tasks beyond generating text.
 
@@ -113,8 +113,53 @@ Suppose an AI agent is designed to answer questions about company documents.
 **In short:** The system prompt tells the agent how it should behave, while the scratchpad helps track information and progress during task execution.
 
 
-**E6. Why does an agent loop need an explicit stop condition like a "Final Answer," instead of just running until it stops generating tokens?**
-Without an explicit signal, there's no way for the surrounding code to tell "the model paused mid-thought" apart from "the model is done and ready to answer" — both just look like generated text stopping. A clear marker like `Final Answer:` lets the orchestration code definitively detect completion and exit the loop, rather than guessing.
+
+### E6. Why Does an Agent Loop Need an Explicit Stop Condition?
+
+An AI agent needs an **explicit stop condition**, such as `Final Answer`, to know when the task is complete and when it should stop taking actions.
+
+Simply stopping token generation is not enough because token generation ending only means the model has finished its current response. It does not necessarily mean the agent has completed the user's task.
+
+**Why is an explicit stop condition important?**
+
+1. **Task Completion:** It tells the agent when the user's request has been fulfilled.
+2. **Prevents Infinite Loops:** It prevents the agent from repeatedly calling tools or performing unnecessary actions.
+3. **Controls Costs:** It reduces unnecessary LLM calls, API requests, and token usage.
+4. **Avoids Unnecessary Actions:** It prevents the agent from continuing to execute tools after it has enough information.
+5. **Provides a Clear Exit:** It allows the orchestration framework to distinguish a final response from an intermediate thought or tool call.
+
+**Example:**
+
+Suppose a user asks, "What is the weather in Bangalore?"
+
+An agent might follow this loop:
+
+1. **Plan:** Determine that weather data is required.
+2. **Act:** Call the weather API.
+3. **Observe:** Receive the weather data.
+4. **Evaluate:** Determine whether the result answers the user's question.
+5. **Finish:** Return `Final Answer: The current weather in Bangalore is ...`
+
+Without an explicit stop condition, the agent might call the weather API repeatedly or continue reasoning even after obtaining the answer.
+
+**Example Python implementation:**
+
+```python
+def agent():
+    while True:
+        result = run_agent_step()
+
+        if result["status"] == "final":
+            return result["answer"]
+
+        if result["status"] == "tool_call":
+            execute_tool(result["tool"], result["arguments"])
+```
+
+Here, the loop stops when the agent returns a `final` status. In production, the loop should also have a maximum iteration limit and error handling.
+
+**In short:** Token generation stopping ends one model response; an explicit stop condition tells the agent when the overall task is complete. It makes agent execution controlled, efficient, and predictable.
+
 
 **E7. What's an everyday example of an "agentic" system you might already use?**
 A coding assistant that reads a repo, decides which files to edit, runs the test suite, sees the failures, and edits again until tests pass is a full perceive/decide/act/observe loop. Browser-automation assistants and support bots that look up an order and then decide whether to issue a refund are other common examples.
