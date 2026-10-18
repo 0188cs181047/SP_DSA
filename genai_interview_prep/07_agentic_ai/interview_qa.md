@@ -164,8 +164,45 @@ Here, the loop stops when the agent returns a `final` status. In production, the
 **E7. What's an everyday example of an "agentic" system you might already use?**
 A coding assistant that reads a repo, decides which files to edit, runs the test suite, sees the failures, and edits again until tests pass is a full perceive/decide/act/observe loop. Browser-automation assistants and support bots that look up an order and then decide whether to issue a refund are other common examples.
 
-**E8. Is agent "autonomy" all-or-nothing, or a spectrum?**
-It's a spectrum. On one end, a system might just suggest an action and wait for a human to approve every single step; further along, it might execute low-risk actions on its own but still pause for high-risk ones; at the far end, it runs unsupervised end-to-end. Most production systems deliberately sit somewhere in the middle rather than at either extreme.
+
+### E8. Is Agent Autonomy All-or-Nothing, or a Spectrum?
+
+**Agent autonomy is a spectrum, not an all-or-nothing property.** It describes how much freedom an AI agent has to make decisions, select tools, execute actions, and complete tasks without human intervention.
+
+The level of autonomy depends on the task, risk, permissions, and the amount of human oversight required.
+
+**Levels of agent autonomy:**
+
+1. **Low Autonomy (Human-Controlled):**
+   - The human decides each step.
+   - The AI provides suggestions or recommendations.
+   - Example: An AI coding assistant suggests code, but the developer decides what to implement.
+
+2. **Moderate Autonomy (Human-in-the-Loop):**
+   - The agent plans and performs some steps independently.
+   - It requests human approval before important actions.
+   - Example: An AI email agent drafts an email and asks for approval before sending it.
+
+3. **High Autonomy (Mostly Independent):**
+   - The agent plans, selects tools, and executes multiple steps independently.
+   - Human intervention is needed mainly for exceptions or sensitive decisions.
+   - Example: A customer support agent retrieves order details, checks delivery status, and prepares a response automatically.
+
+4. **Very High Autonomy:**
+   - The agent manages complex, multi-step workflows with minimal ongoing human intervention.
+   - It still operates within predefined permissions, safety rules, and operational limits.
+   - Example: An AI operations agent monitors system health, investigates alerts, and performs approved recovery actions automatically.
+
+**What determines an agent's autonomy?**
+
+- **Decision-making:** How independently it chooses the next action.
+- **Tool permissions:** Which APIs, databases, and systems it can access.
+- **Human oversight:** Whether approval is required before executing actions.
+- **Planning ability:** Whether it can manage multi-step tasks.
+- **Risk level:** How much freedom is appropriate for the potential consequences.
+
+**In short:** Agent autonomy is a spectrum ranging from human-directed assistance to independent execution. In production systems, autonomy should increase only when appropriate safeguards, permissions, monitoring, and recovery mechanisms are in place.
+
 
 **E9. Why can't an LLM just browse the web or query a database on its own, without anything being wired up for it?**
 An LLM only ever produces text — it has no independent way to open a socket, hit an API, or read a filesystem. "Browsing the web" as an agent capability really means a tool that wraps an actual HTTP request or search API is registered with the model; the model requests that tool by name, and your code performs the real network call and hands the result back as text.
