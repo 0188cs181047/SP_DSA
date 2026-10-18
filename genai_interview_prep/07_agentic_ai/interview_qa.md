@@ -28,14 +28,58 @@ A chatbot maps one input to one output. An agent maintains a goal, decides on a 
 **E2. What is tool use / function calling?**
 Giving the LLM a set of described functions (name, description, input schema). The model outputs a structured request to call one, your code actually executes it, and the real result is fed back into the conversation — this is how agents touch the outside world.
 
-**E3. Does an agent always need an LLM, or could simpler rule-based logic be "agentic"?**
-The defining trait is the loop itself — perceive, decide, act, observe, in service of a goal — not the LLM specifically. A rule-based system with that same loop (a thermostat deciding when to fire the furnace, a simple game NPC) is arguably "agentic" too. In practice the term is used almost exclusively for LLM-driven systems today, because an LLM is what makes flexible, open-ended decision-making practical instead of hand-coding every branch.
+
+### Does an Agent Always Need an LLM, or Can Rule-Based Logic Be Agentic?
+
+No, an agent does not always need an LLM. A rule-based system can also behave like an agent if it observes its environment, makes decisions, and takes actions to achieve a specific goal.
+
+**Rule-Based Agent:**
+- Uses predefined rules and conditions (`if/else` statements).
+- Makes decisions based on fixed logic.
+- Works well for predictable and repetitive tasks.
+
+**LLM-Based Agent:**
+- Uses a Large Language Model (LLM) to understand user requests and make decisions.
+- Can handle complex instructions and unstructured data.
+- Can select tools dynamically and adapt its actions based on the situation.
+
+**Example:**
+
+Suppose we want to monitor server CPU usage.
+
+- **Rule-Based Agent:** If CPU usage exceeds 80%, send an alert automatically.
+- **LLM-Based Agent:** Analyze CPU metrics, investigate possible causes, check logs using tools, and recommend troubleshooting steps.
+
+**In short:** An agent does not require an LLM. Rule-based logic can be agentic when it observes, decides, and acts toward a goal. LLMs make agents more flexible when handling complex or less predictable tasks.
+
 
 **E4. What is a "tool" from the model's point of view — just a function, or something more?**
 From the model's side, a tool is only a name, a natural-language description, and an input schema shown to it in the prompt/context — the model never executes anything itself. It just outputs a structured request saying which tool it wants and with what arguments; your application code is what actually looks up and runs the real function.
 
-**E5. What's the difference between an agent's system prompt and its scratchpad?**
-The system prompt is fixed instructions set once per run — the agent's role, its available tools, and behavioral rules — and doesn't change as the loop executes. The scratchpad is the running record of this specific run's Thoughts, Actions, and Observations, built up dynamically step by step and fed back into every subsequent LLM call so the agent "remembers" what it has already tried.
+
+### E5. What Is the Difference Between an Agent's System Prompt and Its Scratchpad?
+
+A **system prompt** defines the agent's role, instructions, rules, and boundaries, while a **scratchpad** is used to track intermediate reasoning, observations, and steps while solving a task.
+
+**System Prompt:**
+- Defines the agent's role and responsibilities.
+- Specifies rules, goals, and constraints.
+- Explains which tools the agent can use and how it should behave.
+
+**Scratchpad:**
+- Stores intermediate information during task execution.
+- Helps track previous actions, tool results, and the next steps.
+- May be maintained as internal state or execution history, depending on the framework.
+
+**Example:**
+
+Suppose an AI agent is designed to answer questions about company documents.
+
+- **System Prompt:** "You are a company-document assistant. Retrieve relevant documents before answering, use authorized sources only, and do not invent facts."
+- **Scratchpad:** "Step 1: Search the vector database. Step 2: Review the retrieved chunks. Step 3: Prepare an answer based on the results."
+
+**In short:** The system prompt tells the agent how it should behave, while the scratchpad helps track information and progress during task execution.
+
 
 **E6. Why does an agent loop need an explicit stop condition like a "Final Answer," instead of just running until it stops generating tokens?**
 Without an explicit signal, there's no way for the surrounding code to tell "the model paused mid-thought" apart from "the model is done and ready to answer" — both just look like generated text stopping. A clear marker like `Final Answer:` lets the orchestration code definitively detect completion and exit the loop, rather than guessing.
