@@ -25,8 +25,40 @@ ReAct (Reason + Act): the agent alternates Thought and Action, folding each Obse
 **E1. What makes a system "agentic" rather than just a chatbot?**
 A chatbot maps one input to one output. An agent maintains a goal, decides on a sequence of actions — often tool calls — observes their results, and adapts its plan; it operates in a loop rather than a single pass.
 
-**E2. What is tool use / function calling?**
-Giving the LLM a set of described functions (name, description, input schema). The model outputs a structured request to call one, your code actually executes it, and the real result is fed back into the conversation — this is how agents touch the outside world.
+
+### What Is Tool Use / Function Calling?
+
+**Tool use** allows an AI agent to interact with external tools, APIs, databases, or functions to perform tasks beyond generating text.
+
+**Function calling** is a mechanism that allows an LLM to request the execution of a specific function by providing its name and required arguments. The application executes the function and returns the result to the LLM.
+
+**How does it work?**
+
+1. **User Request:** The user asks a question or requests an action.
+2. **LLM Decision:** The model determines whether a tool is needed.
+3. **Function Call:** The model returns the tool name and arguments.
+4. **Tool Execution:** The application executes the function or API.
+5. **Result Returned:** The tool's output is sent back to the LLM.
+6. **Final Response:** The LLM uses the result to answer the user.
+
+**Example:**
+
+Suppose a user asks, "What is the current weather in Bangalore?"
+
+- The LLM identifies that weather information is needed.
+- It calls a weather API with `Bangalore` as the location.
+- The API returns the current weather data.
+- The LLM uses that data to provide the answer.
+
+**Common examples of tools:**
+- APIs for weather, payments, and external services.
+- Database queries to retrieve information.
+- Python functions to perform calculations.
+- Search tools to find relevant documents.
+- Email functions to send messages.
+
+**In short:** Tool use allows an AI agent to perform actions and retrieve real information, while function calling enables the LLM to request those actions through structured function names and arguments.
+
 
 
 ### Does an Agent Always Need an LLM, or Can Rule-Based Logic Be Agentic?
