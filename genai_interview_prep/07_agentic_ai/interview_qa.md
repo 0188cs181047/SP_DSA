@@ -247,28 +247,167 @@ def recall(key, path="agent_memory.json"):
     return store.get(key)
 ```
 
-**M8. How do you decide how many tools to give an agent — is more always better?**
-No — more tools means a harder tool-selection decision for the model at every step, more chances of picking the wrong one, and more prompt space spent on tool descriptions instead of the actual task. The general guidance is to give the minimum tool set that covers the task, and when the full catalog is genuinely large, split it across multiple specialized agents (each with a focused subset) rather than handing one agent dozens of tools at once.
 
-**M9. What is "context engineering" in the agent sense, and how is it different from prompt engineering for a single LLM call?**
-Prompt engineering optimizes the wording of one static prompt. Context engineering is the ongoing, run-time problem of deciding what to put into a long-running agent's limited context window at each step — which parts of a growing scratchpad, which retrieved documents, which past tool results are still worth the tokens — and it typically involves actively trimming, summarizing, or re-ranking that content as the run progresses, not just writing it well once.
+### M8. How Do You Decide How Many Tools to Give an Agent? Is More Always Better?
 
-**M10. How does "native" structured function calling differ from an agent parsing a tool call out of the model's free-form generated text?**
-With native function calling, the API itself returns the tool call as structured, machine-parseable data — a JSON object with a tool name and arguments already validated against the schema you registered — so there's no ambiguity about where the call starts or ends. Parsing free text, by contrast, means regex- or string-matching a pattern like `Action: tool[input]` out of prose the model generated, which breaks the moment the model phrases something slightly differently, forgets a bracket, or wraps the call in extra commentary.
+**No, more tools are not always better.** An agent should have the smallest set of tools needed to complete its tasks reliably, safely, and efficiently.
 
-```python
-import json, re
+Giving an agent too many tools can increase decision complexity, tool-selection errors, execution costs, and security risks.
 
-# "native" structured function calling: the API already hands you this
-structured_call = json.loads('{"name": "calculator", "arguments": {"expression": "15 * 23"}}')
-tool_name, args = structured_call["name"], structured_call["arguments"]
+**How do you decide which tools to provide?**
 
-# free-text parsing: you must regex it out of prose the model generated,
-# and anything that deviates from the expected shape silently fails to match
-raw_text = "Thought: let me compute that.\nAction: calculator[15 * 23]"
-match = re.search(r"Action:\s*(\w+)\[(.*?)\]", raw_text)
-tool_name2 = match.group(1) if match else None  # None if the model phrased it differently
+1. **Define the Agent's Purpose:** Identify the tasks the agent must perform and provide only the tools required for those tasks.
+
+2. **Avoid Overlapping Tools:** If multiple tools perform similar operations, consolidate them where practical to reduce confusion.
+
+3. **Consider Tool Descriptions:** Give each tool a clear name, description, input schema, and expected output so the LLM can select the correct tool.
+
+4. **Apply the Principle of Least Privilege:** Provide only the permissions necessary for the task. For example, a reporting agent may need read-only database access rather than permission to modify or delete records.
+
+5. **Evaluate Performance:** Test tool-selection accuracy, task completion rate, latency, token usage, and failure rate. Add tools only when they provide measurable value.
+
+6. **Use Dynamic Tool Selection:** For large systems, expose only the relevant tools for the current task instead of presenting every available tool to the agent.
+
+**Example: Customer Support Agent**
+
+Suppose an agent handles customer order inquiries.
+
+It may need these tools:
+- `get_order_details()` — retrieve order information.
+- `track_shipment()` — check delivery status.
+- `create_support_ticket()` — escalate unresolved issues.
+
+It probably does not need unrelated tools for payroll, employee management, or infrastructure administration.
+
+**What happens when too many tools are provided?**
+
+- The agent may select the wrong tool.
+- Similar tool descriptions can create ambiguity.
+- More tool definitions may consume additional context tokens.
+- Unnecessary tool calls can increase latency and cost.
+- Excessive permissions can increase security risks.
+
+**Best Practice:**
+
+Start with a minimal toolset, measure the agent's performance, and add tools as real requirements emerge. For complex systems, group tools by domain or retrieve relevant tools dynamically.
+
+**In short:** The goal is not to maximize the number of tools; it is to provide the right tools with clear descriptions, appropriate permissions, and reliable execution.
+
+
+### M9. What Is Context Engineering in the Agent Sense, and How Is It Different from Prompt Engineering for a Single LLM Call?
+
+**Context engineering** is the process of designing, collecting, organizing, and managing the information an AI agent receives at each step so it can make accurate decisions and complete tasks effectively.
+
+**Prompt engineering** focuses primarily on crafting instructions and input prompts to guide an LLM's response. Context engineering takes a broader view by managing everything the model needs to know at a particular point in the workflow.
+
+### Key Differences
+
+| Aspect | Prompt Engineering | Context Engineering |
+|---|---|---|
+| Main focus | Instructions and prompt wording | All relevant information available to the model |
+| Scope | Often a single LLM call | Multiple calls and steps in an agent workflow |
+| Information | System instructions, user prompt, examples | Instructions, conversation history, memory, retrieved documents, tool results, and task state |
+| Optimization | Improve instruction clarity and response quality | Provide the right information at the right time while managing context limits |
+| Example | Write a better prompt for answering questions | Decide which memories, RAG chunks, tool results, and previous actions the agent should receive |
+
+### What Does Context Engineering Include?
+
+1. **System Instructions:** Define the agent's role, objectives, rules, and boundaries.
+2. **Conversation History:** Preserve relevant information from previous interactions.
+3. **Memory Management:** Retrieve useful facts from long-term memory when needed.
+4. **RAG Retrieval:** Fetch relevant documents from a vector database or search system.
+5. **Tool Results:** Include API responses, database records, and other observations.
+6. **Task State:** Track completed steps, pending actions, and remaining work.
+7. **Context Optimization:** Remove irrelevant information, summarize history, and manage token limits.
+
+### Example: Customer Support Agent
+
+Suppose a user asks, "Where is my order, and when will it arrive?"
+
+The agent may perform the following steps:
+
+1. **Understand the request:** Identify that order tracking is required.
+2. **Retrieve context:** Obtain the user's authorized order details and relevant conversation history.
+3. **Call a tool:** Execute `track_shipment(order_id)`.
+4. **Update context:** Add the shipment status and estimated delivery date to the current task state.
+5. **Generate the response:** Provide an answer using the retrieved information.
+
+Prompt engineering helps define how the agent should respond. Context engineering determines which order details, tool results, instructions, and previous information the agent should receive to produce that response.
+
+### Why Is Context Engineering Important for AI Agents?
+
+- Improves response accuracy and relevance.
+- Reduces hallucinations by supplying appropriate evidence.
+- Helps agents maintain continuity across multi-step tasks.
+- Prevents irrelevant information from overwhelming the context window.
+- Improves tool selection and decision-making.
+
+**In short:** Prompt engineering is about instructing the model effectively; context engineering is about ensuring the model has the right instructions, information, memory, and task state at the right time. Prompt engineering is one part of context engineering.
+
+
+### M10. How Does Native Structured Function Calling Differ from Parsing Tool Calls out of Free-Form Generated Text?
+
+**Native structured function calling** allows an LLM to return a tool call in a predefined structured format, such as a function name and JSON arguments. In contrast, free-form tool calling requires the agent to generate ordinary text and then parse that text to identify the intended tool and its arguments.
+
+Native structured calling generally makes tool execution more reliable because the output follows a defined schema, although validation and error handling are still necessary.
+
+### Key Differences
+
+| Aspect | Native Structured Function Calling | Free-Form Text Parsing |
+|---|---|---|
+| Output format | Structured tool-call object | Ordinary generated text |
+| Tool identification | Explicit function or tool name | Extracted from generated text |
+| Arguments | Structured fields, often JSON | Parsed from text, which may be inconsistent |
+| Reliability | Generally more reliable | More prone to formatting and parsing errors |
+| Validation | Can use predefined schemas | Often requires custom parsing and validation |
+| Implementation | Uses the model/API's tool-calling interface | Requires custom text parsing logic |
+
+### Example 1: Native Structured Function Calling
+
+Suppose the agent has a tool named `get_weather`.
+
+The model returns a structured tool call similar to:
+
+```json
+{
+  "name": "get_weather",
+  "arguments": {
+    "city": "Bangalore"
+  }
+}
 ```
+
+The application then:
+1. Identifies the requested tool.
+2. Validates the arguments.
+3. Executes `get_weather(city="Bangalore")`.
+4. Sends the tool result back to the model.
+5. Generates the final response.
+
+The exact format depends on the model provider and API.
+
+### Example 2: Free-Form Text Parsing
+
+The model might instead generate:
+
+```text
+I need to check the weather.
+TOOL: get_weather
+INPUT: city=Bangalore
+```
+
+The application must parse the generated text to identify the tool and extract its arguments.
+
+This approach can fail if the model changes the format, adds unexpected text, omits an argument, or generates malformed content.
+
+### Important Considerations
+
+- **Structured does not mean automatically safe:** Validate arguments, enforce authorization, and handle execution errors.
+- **Schema compliance is not guaranteed in every configuration:** Use supported constrained-output or strict-schema features when available.
+- **Native calling does not execute tools by itself:** The application or agent framework usually executes the requested function and returns its result.
+- **Free-form parsing may still be useful:** It can support legacy systems or custom agent protocols, but requires robust parsing and validation.
+
+**In short:** Native structured function calling provides an explicit, machine-readable tool request, whereas free-form tool calling requires the application to infer and parse the request from generated text. For production agents, structured calling is generally the preferred approach when supported.
 
 ### Advanced — Bar-Raiser / System-Design Round
 
