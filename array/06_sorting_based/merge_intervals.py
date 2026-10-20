@@ -39,21 +39,32 @@ Space Complexity: O(n)        (for the sorted copy / output list)
 """
 
 
+
 def merge_intervals(intervals):
     if not intervals:
         return []
 
-    intervals = sorted(intervals, key=lambda pair: pair[0])
-    merged = [intervals[0]]
+    # Step 1: Sort intervals by start time
+    intervals.sort(key=lambda x: x[0])
 
-    for start, end in intervals[1:]:
-        last_start, last_end = merged[-1]
-        if start <= last_end:
-            merged[-1] = [last_start, max(last_end, end)]
+    # Step 2: Initialize the result
+    result = [intervals[0]]
+
+    # Step 3: Process remaining intervals
+    for i in range(1, len(intervals)):
+        current_start = intervals[i][0]
+        current_end = intervals[i][1]
+
+        last_end = result[-1][1]
+
+        # Step 4: Merge overlapping intervals
+        if current_start <= last_end:
+            result[-1][1] = max(last_end, current_end)
         else:
-            merged.append([start, end])
+            result.append(intervals[i])
 
-    return merged
+    return result
+
 
 
 if __name__ == "__main__":
