@@ -16,3 +16,4 @@ def is_valid_anagram(s, t):
 s = "anagram" 
 t = "nagram"
 res = is_valid_anagram(s=s, t=t)
+print(res)

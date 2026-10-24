@@ -2215,3 +2215,130 @@ This README provides 170 interview questions tailored for AI/ML roles, focusing 
          return {"message": "Monitored"}
      # Configure Grafana to scrape /metrics
      ```
+
+## 171. What Is Idempotency, and How Do You Implement It in Python and FastAPI?**
+
+Idempotency is a property in which executing the same operation multiple times produces the same final result as executing it once.
+
+It is particularly important in REST APIs, payment systems, and microservices, where network failures or retries may cause the same request to be submitted multiple times.
+
+For example, if a client submits a payment request twice due to a timeout, the system should process the payment only once.
+
+### 1. How Idempotency Works
+
+The process typically involves the following steps:
+
+- **Idempotency Key:** The client sends a unique key to identify a logical request.
+- **Request Validation:** The server checks whether the key has already been processed.
+- **Duplicate Detection:** If the key exists, the server returns the previously stored response.
+- **Request Processing:** If the key is new, the server processes the operation and stores the result.
+
+### 2. Implementing Idempotency in Python
+
+```python
+balance = 5000
+processed_requests = set()
+
+def withdraw(amount, idempotency_key):
+    global balance
+
+    if idempotency_key in processed_requests:
+        return "Request already processed"
+
+    balance -= amount
+    processed_requests.add(idempotency_key)
+
+    return f"Remaining balance: {balance}"
+
+print(withdraw(1000, "txn-123"))
+print(withdraw(1000, "txn-123"))
+
+# Final balance: 4000
+```
+
+In this example, the same idempotency key prevents the withdrawal from being executed twice.
+
+### 3. Implementing Idempotency in FastAPI
+
+FastAPI can accept an idempotency key through an HTTP request header. The following example demonstrates the basic implementation.
+
+```python
+from fastapi import FastAPI, Header, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI()
+
+balance = 5000
+processed_requests = {}
+
+class PaymentRequest(BaseModel):
+    amount: float
+
+@app.post("/payments")
+def create_payment(
+    payment: PaymentRequest,
+    idempotency_key: str = Header(
+        ..., alias="Idempotency-Key"
+    )
+):
+    global balance
+
+    if payment.amount <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Amount must be positive"
+        )
+
+    if idempotency_key in processed_requests:
+        return processed_requests[idempotency_key]
+
+    if balance < payment.amount:
+        raise HTTPException(
+            status_code=400,
+            detail="Insufficient balance"
+        )
+
+    balance -= payment.amount
+
+    response = {
+        "message": "Payment successful",
+        "amount": payment.amount,
+        "remaining_balance": balance
+    }
+
+    processed_requests[idempotency_key] = response
+    return response
+```
+
+**### 4. Example API Request**
+
+```http
+POST /payments
+Content-Type: application/json
+Idempotency-Key: txn-123
+
+{
+    "amount": 1000
+}
+```
+
+If the client retries the request with the same idempotency key, the API returns the stored response rather than processing the payment again.
+
+### 5. Common Use Cases of Idempotency
+
+- **Payment Systems:** Prevent duplicate charges during retries.
+- **REST APIs:** Safely handle repeated requests after network failures.
+- **Microservices:** Prevent duplicate business operations.
+- **Kafka Consumers:** Avoid repeating business effects when messages are redelivered.
+- **Distributed Systems:** Improve reliability when requests are retried.
+
+### 6. Production Best Practices
+
+- Use a database or Redis instead of in-memory dictionaries or sets.
+- Store the idempotency key and business operation result atomically.
+- Use unique constraints or atomic operations to prevent concurrent duplicate processing.
+- Validate that the same key is not reused with a different request payload.
+- Define an appropriate retention period for idempotency records.
+- Return the original response for repeated requests with the same key.
+
+**Important:** The Python and FastAPI examples above are simplified demonstrations. Production implementations require persistent storage and concurrency control because in-memory state can be lost on restart and is not shared across multiple application instances.
